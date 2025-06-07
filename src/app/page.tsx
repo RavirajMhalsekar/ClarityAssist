@@ -8,16 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { Sun, Moon, Info, RotateCcw, Github, Linkedin } from 'lucide-react';
-import type { ProfileToggleCardProps } from '@/components/clarity-assist/ProfileToggleCard'; // Assuming this type might be needed if we lift more
-import type { CustomizeSettings } from '@/components/clarity-assist/CustomizeTab'; // Import the type
+import type { CustomizeSettings } from '@/components/clarity-assist/CustomizeTab';
 
 const initialCustomizeSettings: CustomizeSettings = {
-  fontSize: 100,
-  letterSpacing: 0,
-  wordSpacing: 0,
-  lineSpacing: 100,
-  colorSaturation: 100,
-  contrastValue: 100,
+  fontSize: 100, // percentage
+  letterSpacing: 0, // px
+  wordSpacing: 0, // px
+  lineSpacing: 100, // percentage
+  colorSaturation: 100, // percentage
+  contrastValue: 100, // percentage
   invertColors: false,
   websiteDarkMode: false,
 };
@@ -64,8 +63,34 @@ export default function Home() {
     });
   };
 
+  const getPageStyles = () => {
+    let filterStyle = '';
+    if (customizeSettings.invertColors) {
+      filterStyle += 'invert(1) ';
+    } else if (customizeSettings.websiteDarkMode) {
+      filterStyle += 'invert(1) hue-rotate(180deg) ';
+    }
+    filterStyle += `saturate(${customizeSettings.colorSaturation}%) contrast(${customizeSettings.contrastValue}%)`;
+
+    return {
+      fontSize: `${customizeSettings.fontSize}%`,
+      letterSpacing: `${customizeSettings.letterSpacing}px`,
+      wordSpacing: `${customizeSettings.wordSpacing}px`,
+      lineHeight: `${customizeSettings.lineSpacing}%`,
+      filter: filterStyle.trim() || 'none',
+    };
+  };
+
+  const activeProfileNames = Object.entries(enabledProfiles)
+    .filter(([, isActive]) => isActive)
+    .map(([profileId]) => profileId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+    .join(', ');
+
   return (
-    <main className="flex flex-col items-center p-4 sm:p-6 md:p-8 min-h-screen bg-background text-foreground transition-colors duration-300">
+    <main
+      className="flex flex-col items-center p-4 sm:p-6 md:p-8 min-h-screen bg-background text-foreground transition-colors duration-300"
+      style={getPageStyles()}
+    >
       <div className="w-full max-w-lg mx-auto bg-card p-4 sm:p-6 rounded-xl shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-headline font-bold text-primary">
@@ -117,6 +142,13 @@ export default function Home() {
           customizeSettings={customizeSettings}
           setCustomizeSettings={setCustomizeSettings}
         />
+        {activeProfileNames && (
+          <div className="mt-4 p-3 border border-dashed border-primary rounded-md text-sm text-primary bg-primary/10">
+            <p className="font-semibold">Active Profiles (Simulated):</p>
+            <p>{activeProfileNames}</p>
+            <p className="text-xs mt-1 text-muted-foreground">Full simulation of profile behaviors (e.g., keyboard navigation, screen reader enhancements) is not applied to this UI preview.</p>
+          </div>
+        )}
       </div>
     </main>
   );
