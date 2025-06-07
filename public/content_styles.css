@@ -1,0 +1,52 @@
+/*
+  This CSS file will be injected into web pages by the content script.
+  You can define styles here that are applied based on the body classes
+  added by content.js for enabled accessibility profiles.
+*/
+
+/* Example for Motor Impaired profile: Focus indicators */
+.clarity-assist-profile-motor-impaired *:focus {
+  outline: 3px solid #FF9800 !important; /* Use a vibrant accent color */
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.5) !important;
+}
+
+/* Example for Blind profile: Potentially hide visual clutter or enhance ARIA */
+/* .clarity-assist-profile-blind .visually-distracting-element {
+  display: none !important;
+} */
+
+/* Example for Color Blind profile: May not need CSS if handled by filters,
+   but could be used for specific high-contrast adjustments if filters aren't enough. */
+/* .clarity-assist-profile-color-blind body {
+    filter: url(#deuteranopia); // Example for SVG filter
+} */
+
+
+/* Add more styles for other profiles as needed */
+/*
+.clarity-assist-profile-low-vision { }
+.clarity-assist-profile-seizure-learning { }
+.clarity-assist-profile-elderly { }
+*/
+
+/*
+  Remember to define what each profile does in terms of specific CSS changes.
+  For example, the "Seizure & Learning" profile might stop animations:
+*/
+.clarity-assist-profile-seizure-learning * {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+/* And hide blinking elements */
+.clarity-assist-profile-seizure-learning [style*="animation-name:blink"],
+.clarity-assist-profile-seizure-learning [style*="animation-name: blink"] {
+  animation-name: none !important;
+  opacity: 1 !important;
+}
+/* Common blinking class names could also be targeted */
+.clarity-assist-profile-seizure-learning .blink,
+.clarity-assist-profile-seizure-learning .blinking {
+    animation: none !important;
+    opacity: 1 !important;
+}
+

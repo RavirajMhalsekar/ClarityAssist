@@ -1,0 +1,31 @@
+/*
+  This file will contain the styles for your popup.html.
+  You will likely want to:
+  1. Set up Tailwind CSS (or another CSS solution) to process your React components
+     and output the compiled CSS here. This would involve configuring your chosen
+     build tool (Webpack, Parcel, Vite) to handle CSS.
+  2. Manually copy and adapt styles from src/app/globals.css if you need a quicker,
+     less integrated approach.
+
+  For a proper setup, integrate Tailwind CSS into your extension's build process.
+  The theme variables (CSS custom properties for colors, radius, etc.)
+  from your current globals.css are essential for shadcn/ui components to look correct.
+  You'll need to ensure these variables are defined and available to popup.html.
+
+  Example of what you might need from globals.css (Tailwind will generate this):
+*/
+
+/*
+body {
+  --background: hsl(230 50% 94%);
+  --foreground: hsl(235 61% 30%);
+  background-color: var(--background);
+  color: var(--foreground);
+  /* ... and all other theme variables ... */
+}
+
+/*
+  You'll also need styles for all the shadcn/ui components.
+  The best approach is to have Tailwind process your components and generate
+  the necessary utility classes and component styles.
+*/
