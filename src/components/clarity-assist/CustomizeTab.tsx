@@ -1,34 +1,39 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import AdjustmentControl from "./AdjustmentControl";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ALargeSmall, StretchHorizontal, WrapText, Baseline, Droplets, Contrast } from "lucide-react";
 
-export default function CustomizeTab() {
-  const [fontSize, setFontSize] = useState(100);
-  const [letterSpacing, setLetterSpacing] = useState(0);
-  const [wordSpacing, setWordSpacing] = useState(0);
-  const [lineSpacing, setLineSpacing] = useState(100);
-  const [colorSaturation, setColorSaturation] = useState(100);
-  const [contrastValue, setContrastValue] = useState(100); // Renamed to avoid conflict with imported Contrast icon
-  const [invertColors, setInvertColors] = useState(false);
-  const [websiteDarkMode, setWebsiteDarkMode] = useState(false); // This state is for the simulated website dark mode
+export interface CustomizeSettings {
+  fontSize: number;
+  letterSpacing: number;
+  wordSpacing: number;
+  lineSpacing: number;
+  colorSaturation: number;
+  contrastValue: number;
+  invertColors: boolean;
+  websiteDarkMode: boolean;
+}
 
-  const handleWebsiteDarkModeChange = (checked: boolean) => {
-    setWebsiteDarkMode(checked);
-    // This switch now only updates its own state for simulating website dark mode.
-    // It does not affect the extension's theme.
+interface CustomizeTabProps {
+  settings: CustomizeSettings;
+  setSettings: React.Dispatch<React.SetStateAction<CustomizeSettings>>;
+}
+
+export default function CustomizeTab({ settings, setSettings }: CustomizeTabProps) {
+  const updateSetting = <K extends keyof CustomizeSettings>(key: K, value: CustomizeSettings[K]) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
     <div className="space-y-6">
       <AdjustmentControl
         label="Font Sizing"
-        value={fontSize}
-        setValue={setFontSize}
+        value={settings.fontSize}
+        setValue={(value) => updateSetting("fontSize", value)}
         min={50}
         max={200}
         step={5}
@@ -37,8 +42,8 @@ export default function CustomizeTab() {
       />
       <AdjustmentControl
         label="Letter Spacing"
-        value={letterSpacing}
-        setValue={setLetterSpacing}
+        value={settings.letterSpacing}
+        setValue={(value) => updateSetting("letterSpacing", value)}
         min={-2}
         max={10}
         step={0.5}
@@ -47,8 +52,8 @@ export default function CustomizeTab() {
       />
       <AdjustmentControl
         label="Word Spacing"
-        value={wordSpacing}
-        setValue={setWordSpacing}
+        value={settings.wordSpacing}
+        setValue={(value) => updateSetting("wordSpacing", value)}
         min={-2}
         max={20}
         step={0.5}
@@ -57,8 +62,8 @@ export default function CustomizeTab() {
       />
       <AdjustmentControl
         label="Line Spacing"
-        value={lineSpacing}
-        setValue={setLineSpacing}
+        value={settings.lineSpacing}
+        setValue={(value) => updateSetting("lineSpacing", value)}
         min={80}
         max={200}
         step={5}
@@ -67,8 +72,8 @@ export default function CustomizeTab() {
       />
       <AdjustmentControl
         label="Color Saturation"
-        value={colorSaturation}
-        setValue={setColorSaturation}
+        value={settings.colorSaturation}
+        setValue={(value) => updateSetting("colorSaturation", value)}
         min={0}
         max={200}
         step={10}
@@ -77,8 +82,8 @@ export default function CustomizeTab() {
       />
       <AdjustmentControl
         label="Contrast"
-        value={contrastValue}
-        setValue={setContrastValue}
+        value={settings.contrastValue}
+        setValue={(value) => updateSetting("contrastValue", value)}
         min={50}
         max={200}
         step={10}
@@ -92,8 +97,8 @@ export default function CustomizeTab() {
         </Label>
         <Switch
           id="invert-colors-switch"
-          checked={invertColors}
-          onCheckedChange={setInvertColors}
+          checked={settings.invertColors}
+          onCheckedChange={(checked) => updateSetting("invertColors", checked)}
           aria-label="Toggle invert colors for website simulation"
         />
       </div>
@@ -104,8 +109,8 @@ export default function CustomizeTab() {
         </Label>
         <Switch
           id="website-dark-mode-switch"
-          checked={websiteDarkMode}
-          onCheckedChange={handleWebsiteDarkModeChange}
+          checked={settings.websiteDarkMode}
+          onCheckedChange={(checked) => updateSetting("websiteDarkMode", checked)}
           aria-label="Toggle dark mode for website simulation"
         />
       </div>

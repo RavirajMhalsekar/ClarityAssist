@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import type { LucideIcon } from "lucide-react";
 import { Keyboard, EyeOff, Palette, ZoomIn, ZapOff, Users } from "lucide-react";
 import ProfileToggleCard from "./ProfileToggleCard";
@@ -51,13 +52,17 @@ const profilesData: Profile[] = [
   },
 ];
 
-export default function AccessibilityProfilesTab() {
-  const [enabledProfiles, setEnabledProfiles] = useState<Record<string, boolean>>({});
+interface AccessibilityProfilesTabProps {
+  enabledProfiles: Record<string, boolean>;
+  setEnabledProfiles: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+}
 
+export default function AccessibilityProfilesTab({
+  enabledProfiles,
+  setEnabledProfiles,
+}: AccessibilityProfilesTabProps) {
   const handleToggleProfile = (profileId: string, checked: boolean) => {
     setEnabledProfiles((prev) => ({ ...prev, [profileId]: checked }));
-    // Here you would typically dispatch an action or call a function
-    // to apply the profile settings to the page.
   };
 
   return (

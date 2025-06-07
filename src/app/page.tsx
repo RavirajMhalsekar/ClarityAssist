@@ -2,15 +2,35 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import ClarityAssistUI from '@/components/clarity-assist/ClarityAssistUI';
 import { Button } from '@/components/ui/button';
-import { Sun, Moon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { Sun, Moon, Info, RotateCcw, Github, Linkedin } from 'lucide-react';
+import type { ProfileToggleCardProps } from '@/components/clarity-assist/ProfileToggleCard'; // Assuming this type might be needed if we lift more
+import type { CustomizeSettings } from '@/components/clarity-assist/CustomizeTab'; // Import the type
+
+const initialCustomizeSettings: CustomizeSettings = {
+  fontSize: 100,
+  letterSpacing: 0,
+  wordSpacing: 0,
+  lineSpacing: 100,
+  colorSaturation: 100,
+  contrastValue: 100,
+  invertColors: false,
+  websiteDarkMode: false,
+};
+
+const initialEnabledProfiles: Record<string, boolean> = {};
 
 export default function Home() {
   const [isExtensionDarkMode, setIsExtensionDarkMode] = useState(false);
+  const [customizeSettings, setCustomizeSettings] = useState<CustomizeSettings>(initialCustomizeSettings);
+  const [enabledProfiles, setEnabledProfiles] = useState<Record<string, boolean>>(initialEnabledProfiles);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Determine initial theme for the extension and set it
     const storedTheme = localStorage.getItem('clarity-assist-extension-theme');
     let initialThemeIsDark;
     if (storedTheme) {
@@ -22,7 +42,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Apply theme class to HTML element and save preference
     if (isExtensionDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('clarity-assist-extension-theme', 'dark');
@@ -36,18 +55,68 @@ export default function Home() {
     setIsExtensionDarkMode(prev => !prev);
   };
 
+  const handleResetAll = () => {
+    setCustomizeSettings(initialCustomizeSettings);
+    setEnabledProfiles(initialEnabledProfiles);
+    toast({
+      title: "Settings Reset",
+      description: "All accessibility profiles and customizations have been reset to their default values.",
+    });
+  };
+
   return (
     <main className="flex flex-col items-center p-4 sm:p-6 md:p-8 min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="w-full max-w-lg mx-auto bg-card p-4 sm:p-6 rounded-xl shadow-2xl">
         <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" size="icon" onClick={toggleExtensionTheme} aria-label="Toggle extension theme">
-            {isExtensionDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
           <h1 className="text-3xl font-headline font-bold text-primary">
             ClarityAssist
           </h1>
+          <div className="flex items-center space-x-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Developer Information">
+                  <Info className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Developer Information</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Developed by Raviraj Mhalsekar, Software Engineer.
+                    </p>
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-2">
+                      <Linkedin className="h-4 w-4 text-primary" />
+                      <Link href="https://www.linkedin.com/in/ravirajmhalsekar" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                        linkedin.com/in/ravirajmhalsekar
+                      </Link>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Github className="h-4 w-4 text-primary" />
+                      <Link href="https://github.com/RavirajMhalsekar" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                        github.com/RavirajMhalsekar
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button variant="outline" size="icon" onClick={handleResetAll} aria-label="Reset all settings">
+              <RotateCcw className="h-5 w-5" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={toggleExtensionTheme} aria-label="Toggle extension theme">
+              {isExtensionDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
-        <ClarityAssistUI />
+        <ClarityAssistUI
+          enabledProfiles={enabledProfiles}
+          setEnabledProfiles={setEnabledProfiles}
+          customizeSettings={customizeSettings}
+          setCustomizeSettings={setCustomizeSettings}
+        />
       </div>
     </main>
   );
