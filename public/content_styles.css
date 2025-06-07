@@ -1,52 +1,35 @@
+
 /*
-  This CSS file will be injected into web pages by the content script.
-  You can define styles here that are applied based on the body classes
-  added by content.js for enabled accessibility profiles.
-*/
+  This CSS file is injected into web pages by the content script (content.js).
+  You can define baseline styles or overrides here that your content.js might toggle or modify.
 
-/* Example for Motor Impaired profile: Focus indicators */
-.clarity-assist-profile-motor-impaired *:focus {
-  outline: 3px solid #FF9800 !important; /* Use a vibrant accent color */
-  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.5) !important;
-}
-
-/* Example for Blind profile: Potentially hide visual clutter or enhance ARIA */
-/* .clarity-assist-profile-blind .visually-distracting-element {
-  display: none !important;
-} */
-
-/* Example for Color Blind profile: May not need CSS if handled by filters,
-   but could be used for specific high-contrast adjustments if filters aren't enough. */
-/* .clarity-assist-profile-color-blind body {
-    filter: url(#deuteranopia); // Example for SVG filter
-} */
-
-
-/* Add more styles for other profiles as needed */
-/*
-.clarity-assist-profile-low-vision { }
-.clarity-assist-profile-seizure-learning { }
-.clarity-assist-profile-elderly { }
+  For example, if you have specific classes for highlighted links or custom focus indicators
+  that are applied by JavaScript in content.js, you can define those classes here.
 */
 
 /*
-  Remember to define what each profile does in terms of specific CSS changes.
-  For example, the "Seizure & Learning" profile might stop animations:
-*/
-.clarity-assist-profile-seizure-learning * {
-  animation-duration: 0s !important;
-  transition-duration: 0s !important;
-}
-/* And hide blinking elements */
-.clarity-assist-profile-seizure-learning [style*="animation-name:blink"],
-.clarity-assist-profile-seizure-learning [style*="animation-name: blink"] {
-  animation-name: none !important;
-  opacity: 1 !important;
-}
-/* Common blinking class names could also be targeted */
-.clarity-assist-profile-seizure-learning .blink,
-.clarity-assist-profile-seizure-learning .blinking {
-    animation: none !important;
-    opacity: 1 !important;
-}
+  It's generally better to apply styles dynamically via JavaScript (content.js)
+  by setting style properties on document.documentElement or body, or by adding/removing classes.
+  This allows for more precise control based on user settings.
 
+  However, if you have some static CSS overrides that should always apply when the extension
+  is active on a page, you could put them here.
+
+  Example (Conceptual):
+  body {
+    --user-font-size: 16px;
+    font-size: var(--user-font-size) !important;
+  }
+
+  .clarity-enhanced-focus:focus {
+    outline: 3px solid orange !important;
+    box-shadow: 0 0 10px orange !important;
+  }
+*/
+
+/*
+  The primary method for applying styles in this setup will be through
+  JavaScript in content.js, manipulating CSS Custom Properties on :root or body,
+  or directly setting element.style properties.
+  The style tag injected by content.js is a more common pattern for dynamic global styles.
+*/

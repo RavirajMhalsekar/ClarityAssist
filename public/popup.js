@@ -1,35 +1,66 @@
+
 // This is where your bundled React application for the popup will go.
-// You'll need to set up a build process (e.g., using Webpack, Parcel, or Vite)
-// to compile your React components from the src/components/ directory (like ClarityAssistUI)
-// and output the bundle here. The existing src/app/page.tsx contains the current UI
-// setup and state management, which will need to be adapted for this popup context.
+// You'll need to:
+// 1. Adapt the UI logic from src/app/page.tsx (state management for settings, theme)
+//    to work within an extension popup context.
+// 2. Import and render your main React component (e.g., a modified ClarityAssistUI) into the #root element.
+// 3. Use a build tool (Webpack, Parcel, Vite) to compile your React code and dependencies into this file.
 
-console.log("ClarityAssist popup.js loaded. Waiting for React app bundle.");
-
-// Example of how you might eventually render your React app:
+// Example (conceptual - requires React, ReactDOM, and your components to be available):
 /*
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// You'll need to adjust the path to where your main UI component will live
-// after you set up your build process. For instance, if you adapt src/app/page.tsx
-// or create a new entry point for the extension UI.
-// import PopupApp from './PopupApp'; // A new component you might create
+// import YourAdaptedClarityAssistApp from './YourAdaptedClarityAssistApp'; // This would be your React app entry
+import './styles.css'; // Or ensure your Tailwind CSS is bundled
 
-// Make sure your styles.css is loaded in popup.html and contains Tailwind/shadcn styles.
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  React.createElement('div', null, 'ClarityAssist Popup - React App Placeholder. Implement UI here.')
+  // <React.StrictMode>
+  //   <YourAdaptedClarityAssistApp />
+  // </React.StrictMode>
+);
 
-const rootElement = document.getElementById('root');
-if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
-    <React.StrictMode>
-      { /* <PopupApp /> */ }
-      <div style={{padding: "1em", textAlign: "center"}}>
-        <p>If you see this, your React app is not yet rendering here.</p>
-        <p>Configure your build process to bundle your React UI from <code>src/</code> into <code>public/popup.js</code>.</p>
-      </div>
-    </React.StrictMode>
-  );
-} else {
-  console.error("Root element not found in popup.html");
+// --- Communication with content script and background script ---
+
+// Function to save settings (example)
+function saveSettings(settings) {
+  chrome.storage.sync.set({ clarityAssistSettings: settings }, () => {
+    console.log('Settings saved.');
+    // Optionally, send a message to content script to apply changes immediately
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0] && tabs[0].id) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "SETTINGS_UPDATED", settings });
+      }
+    });
+  });
 }
+
+// Function to load settings (example)
+function loadSettings(callback) {
+  chrome.storage.sync.get('clarityAssistSettings', (data) => {
+    callback(data.clarityAssistSettings || {}); // Provide default empty object if no settings found
+  });
+}
+
+// Example: When your React UI changes settings, call saveSettings.
+// Example: When your React UI loads, call loadSettings to populate initial state.
 */
+
+console.log("ClarityAssist popup.js loaded. Implement React UI and logic here.");
+
+// Placeholder to show settings are being managed (you'd connect this to your React state)
+document.addEventListener('DOMContentLoaded', () => {
+  // Example: try to load settings
+  if (chrome.storage && chrome.storage.sync) {
+    chrome.storage.sync.get(['clarityAssistSettings', 'clarityAssistEnabledProfiles'], (data) => {
+      const settings = data.clarityAssistSettings;
+      const profiles = data.clarityAssistEnabledProfiles;
+      console.log('Loaded settings from storage:', settings);
+      console.log('Loaded profiles from storage:', profiles);
+      // Here you would use these to initialize your React app's state
+    });
+  } else {
+    console.warn('chrome.storage.sync API not available. Ensure this is run as part of an extension.');
+  }
+});

@@ -1,103 +1,117 @@
-// This content script will run on web pages.
-// You'll implement logic here to:
-// 1. Listen for settings changes from chrome.storage (updated by the popup).
-// 2. Apply accessibility modifications to the page's DOM and styles.
-console.log("ClarityAssist content.js loaded.");
 
-// --- Constants for styling ---
-const CLARITY_ASSIST_STYLE_ID = 'clarity-assist-dynamic-styles';
-const CLARITY_ASSIST_PROFILE_CLASS_PREFIX = 'clarity-assist-profile-';
+console.log("ClarityAssist content script loaded.");
 
-// --- Helper function to apply styles ---
-function applyDynamicStyles(settings) {
-  let styleElement = document.getElementById(CLARITY_ASSIST_STYLE_ID);
-  if (!styleElement) {
-    styleElement = document.createElement('style');
-    styleElement.id = CLARITY_ASSIST_STYLE_ID;
-    document.head.appendChild(styleElement);
-  }
+let currentSettings = {};
+let currentProfiles = {};
 
+// Function to apply styles based on settings
+function applyAccessibilitySettings(settings, profiles) {
+  console.log("Applying settings in content script:", settings);
+  console.log("Applying profiles in content script:", profiles);
+
+  // --- Apply CustomizeSettings ---
   let filterStyle = '';
   if (settings.invertColors) {
     filterStyle += 'invert(1) ';
   } else if (settings.websiteDarkMode) {
-    // This is a common technique for a "smart" dark mode.
-    // It inverts colors and then corrects hue for images/videos.
+    // A common way to simulate dark mode is invert then hue-rotate
     filterStyle += 'invert(1) hue-rotate(180deg) ';
   }
-  filterStyle += `saturate(${settings.colorSaturation}%) contrast(${settings.contrastValue}%)`;
 
-  // Apply styles to the html element for broad impact.
-  // Using !important can be necessary to override existing site styles, but use cautiously.
+  if (settings.colorSaturation !== undefined) {
+    filterStyle += `saturate(${settings.colorSaturation}%) `;
+  }
+  if (settings.contrastValue !== undefined) {
+    filterStyle += `contrast(${settings.contrastValue}%) `;
+  }
+
+  document.documentElement.style.setProperty('--clarity-assist-filter', filterStyle.trim() || 'none');
+  
+  if (settings.fontSize !== undefined) {
+    document.documentElement.style.setProperty('--clarity-assist-font-size', `${settings.fontSize}%`);
+  }
+  if (settings.letterSpacing !== undefined) {
+    document.documentElement.style.setProperty('--clarity-assist-letter-spacing', `${settings.letterSpacing}px`);
+  }
+  if (settings.wordSpacing !== undefined) {
+    document.documentElement.style.setProperty('--clarity-assist-word-spacing', `${settings.wordSpacing}px`);
+  }
+  if (settings.lineSpacing !== undefined) {
+    // Note: line-height in CSS is typically just 'lineHeight', not 'lineSpacing'
+    document.documentElement.style.setProperty('--clarity-assist-line-height', `${settings.lineSpacing}%`);
+  }
+
+
+  // --- Apply AccessibilityProfiles (Conceptual) ---
+  // This is where more complex logic for profiles would go.
+  // For example, a "motor-impaired" profile might enhance focus indicators,
+  // a "blind" profile might interact with ARIA attributes more explicitly (though much of this is browser-native).
+
+  // Example: If "low-vision" profile is active, ensure high contrast and larger text
+  // This might override or combine with individual customizeSettings.
+  // For simplicity, we'll assume profiles primarily group sets of customizeSettings,
+  // or enable specific JavaScript behaviors not covered by simple CSS.
+
+  if (profiles && profiles['low-vision']) {
+    // Example: force higher contrast if low-vision profile is on, overriding slider.
+    // document.documentElement.style.setProperty('--clarity-assist-filter', `contrast(150%) ${filterStyle}`);
+    // document.documentElement.style.setProperty('--clarity-assist-font-size', `120%`);
+    console.log("Low Vision profile is active (simulated effects).");
+  }
+  
+  // Inject or update a style tag for global page modifications
+  let styleElement = document.getElementById('clarity-assist-styles');
+  if (!styleElement) {
+    styleElement = document.createElement('style');
+    styleElement.id = 'clarity-assist-styles';
+    document.head.appendChild(styleElement);
+  }
+
   styleElement.textContent = `
-    html {
-      font-size: ${settings.fontSize}% !important;
-      letter-spacing: ${settings.letterSpacing}px !important;
-      word-spacing: ${settings.wordSpacing}px !important;
-      line-height: ${settings.lineSpacing}% !important;
-      filter: ${filterStyle.trim() || 'none'} !important;
+    :root {
+      filter: var(--clarity-assist-filter, none) !important;
     }
-    /* If websiteDarkMode or invertColors is active, ensure images/videos are not double-inverted or hue-rotated badly */
-    ${(settings.websiteDarkMode || settings.invertColors) ? `
-    html img, html video, html iframe {
-      filter: invert(1) hue-rotate(180deg); /* Counter-act the main filter */
-    }` : ''}
+    body {
+      font-size: var(--clarity-assist-font-size, inherit) !important;
+      letter-spacing: var(--clarity-assist-letter-spacing, inherit) !important;
+      word-spacing: var(--clarity-assist-word-spacing, inherit) !important;
+      line-height: var(--clarity-assist-line-height, inherit) !important;
+    }
+    /* Add more specific selectors if needed, e.g., p, div, span */
+    /* Or target all elements: * { ... } but be very careful with performance. */
   `;
 }
 
-// --- Helper function to manage profile-specific body classes ---
-function updateProfileClasses(profiles) {
-  // Remove any existing profile classes
-  document.body.className = document.body.className
-    .split(' ')
-    .filter(cls => !cls.startsWith(CLARITY_ASSIST_PROFILE_CLASS_PREFIX))
-    .join(' ');
 
-  // Add new profile classes
-  Object.keys(profiles).forEach(profileId => {
-    if (profiles[profileId]) {
-      document.body.classList.add(`${CLARITY_ASSIST_PROFILE_CLASS_PREFIX}${profileId}`);
-    }
-  });
-  // You would then have CSS in content_styles.css that targets these classes.
-  // e.g., .clarity-assist-profile-motor-impaired { /* specific styles */ }
-}
-
-
-// --- Load settings from storage and apply ---
-function loadAndApplySettings() {
-  chrome.storage.sync.get(['customizeSettings', 'enabledProfiles'], (data) => {
-    if (chrome.runtime.lastError) {
-      console.error(`Error retrieving settings: ${chrome.runtime.lastError.message}`);
-      return;
-    }
-
-    const defaultCustomizeSettings = {
-      fontSize: 100, letterSpacing: 0, wordSpacing: 0, lineSpacing: 100,
-      colorSaturation: 100, contrastValue: 100, invertColors: false, websiteDarkMode: false,
-    };
-    const defaultEnabledProfiles = {};
-
-    const customizeSettings = data.customizeSettings || defaultCustomizeSettings;
-    const enabledProfiles = data.enabledProfiles || defaultEnabledProfiles;
-
-    applyDynamicStyles(customizeSettings);
-    updateProfileClasses(enabledProfiles);
-  });
-}
-
-// --- Listen for changes in storage ---
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === 'sync' && (changes.customizeSettings || changes.enabledProfiles)) {
-    console.log('ClarityAssist: Settings changed, reapplying.');
-    loadAndApplySettings();
+// Listen for messages from the popup or background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === "SETTINGS_UPDATED") {
+    currentSettings = request.settings || currentSettings;
+    currentProfiles = request.profiles || currentProfiles;
+    applyAccessibilitySettings(currentSettings, currentProfiles);
+    sendResponse({ status: "Settings received and applied" });
   }
+  return true; // Indicates that the response will be sent asynchronously
 });
 
-// --- Initial application of settings when the content script loads ---
-// Ensure the DOM is ready before applying styles, especially for body classes.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadAndApplySettings);
-} else {
-  loadAndApplySettings();
+// Initial load of settings when the content script is injected
+chrome.storage.sync.get(['clarityAssistSettings', 'clarityAssistEnabledProfiles'], (data) => {
+  currentSettings = data.clarityAssistSettings || initialCustomizeSettingsFromSomewhere(); // Define or get initial settings
+  currentProfiles = data.clarityAssistEnabledProfiles || {};
+  applyAccessibilitySettings(currentSettings, currentProfiles);
+});
+
+// You'll need a way to define initial default settings if not found in storage.
+// This could be hardcoded or fetched.
+function initialCustomizeSettingsFromSomewhere() {
+  return {
+    fontSize: 100,
+    letterSpacing: 0,
+    wordSpacing: 0,
+    lineSpacing: 100,
+    colorSaturation: 100,
+    contrastValue: 100,
+    invertColors: false,
+    websiteDarkMode: false,
+  };
 }

@@ -1,31 +1,48 @@
+
 /*
-  This file will contain the styles for your popup.html.
-  You will likely want to:
-  1. Set up Tailwind CSS (or another CSS solution) to process your React components
-     and output the compiled CSS here. This would involve configuring your chosen
-     build tool (Webpack, Parcel, Vite) to handle CSS.
-  2. Manually copy and adapt styles from src/app/globals.css if you need a quicker,
-     less integrated approach.
+  This file will be the entry point for your Tailwind CSS styles for the popup.
+  You'll need to configure Tailwind to process this file and output the generated CSS,
+  which can then be linked in popup.html or bundled into popup.js.
 
-  For a proper setup, integrate Tailwind CSS into your extension's build process.
-  The theme variables (CSS custom properties for colors, radius, etc.)
-  from your current globals.css are essential for shadcn/ui components to look correct.
-  You'll need to ensure these variables are defined and available to popup.html.
-
-  Example of what you might need from globals.css (Tailwind will generate this):
+  For now, it's a placeholder. You can copy the relevant parts of src/app/globals.css here
+  once your build process for the extension is set up.
 */
 
-/*
 body {
-  --background: hsl(230 50% 94%);
-  --foreground: hsl(235 61% 30%);
-  background-color: var(--background);
-  color: var(--foreground);
-  /* ... and all other theme variables ... */
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #E8EAF6; /* Default light background similar to your theme */
+}
+
+/* You will need to bring in your Tailwind base, components, and utilities,
+   and define your theme variables here as well, or ensure your build process
+   handles this from your existing src/app/globals.css. */
+
+/* Example of how you might define a few variables if doing it manually (not recommended for full theme): */
+:root {
+  --background: 230 50% 94%;
+  --foreground: 235 61% 30%;
+  --primary: 231 48% 48%;
+  --primary-foreground: 0 0% 100%;
+  /* ... other theme variables ... */
+}
+
+.dark {
+  --background: 235 20% 12%;
+  --foreground: 230 50% 94%;
+  --primary: 231 48% 55%;
+  --primary-foreground: 0 0% 10%;
+   /* ... other dark theme variables ... */
 }
 
 /*
-  You'll also need styles for all the shadcn/ui components.
-  The best approach is to have Tailwind process your components and generate
-  the necessary utility classes and component styles.
+  Placeholder for root div styling.
+  Your React app should take over the styling from here.
 */
+#root {
+  /* Styles for the root container if needed */
+}
