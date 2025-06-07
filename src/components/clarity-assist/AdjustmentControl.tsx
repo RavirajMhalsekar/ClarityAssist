@@ -1,6 +1,8 @@
+
 "use client";
 
 import React from "react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -14,6 +16,7 @@ interface AdjustmentControlProps {
   max: number;
   step: number;
   unit?: string;
+  icon?: LucideIcon;
 }
 
 export default function AdjustmentControl({
@@ -24,6 +27,7 @@ export default function AdjustmentControl({
   max,
   step,
   unit = "",
+  icon: IconComponent,
 }: AdjustmentControlProps) {
   const sliderId = `slider-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
@@ -32,18 +36,21 @@ export default function AdjustmentControl({
   };
 
   const increment = () => {
-    setValue(Math.min(max, parseFloat((value + step).toFixed(2)) )); // Handle potential floating point issues
+    setValue(Math.min(max, parseFloat((value + step).toFixed(2)) ));
   };
 
   const decrement = () => {
-    setValue(Math.max(min, parseFloat((value - step).toFixed(2)) )); // Handle potential floating point issues
+    setValue(Math.max(min, parseFloat((value - step).toFixed(2)) ));
   };
 
   return (
     <div className="p-3 border border-border rounded-lg bg-background shadow-sm space-y-2">
-      <Label htmlFor={sliderId} className="text-sm font-medium text-foreground">
-        {label}
-      </Label>
+      <div className="flex items-center">
+        {IconComponent && <IconComponent className="h-5 w-5 mr-2 text-primary flex-shrink-0" aria-hidden="true" />}
+        <Label htmlFor={sliderId} className="text-sm font-medium text-foreground">
+          {label}
+        </Label>
+      </div>
       <div className="flex items-center space-x-2">
         <Button variant="outline" size="icon" onClick={decrement} aria-label={`Decrease ${label}`} className="shrink-0">
           <Minus className="h-4 w-4" />

@@ -1,9 +1,11 @@
+
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AdjustmentControl from "./AdjustmentControl";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ALargeSmall, StretchHorizontal, WrapText, Baseline, Droplets, Contrast } from "lucide-react";
 
 export default function CustomizeTab() {
   const [fontSize, setFontSize] = useState(100);
@@ -11,39 +13,14 @@ export default function CustomizeTab() {
   const [wordSpacing, setWordSpacing] = useState(0);
   const [lineSpacing, setLineSpacing] = useState(100);
   const [colorSaturation, setColorSaturation] = useState(100);
-  const [contrast, setContrast] = useState(100);
+  const [contrastValue, setContrastValue] = useState(100); // Renamed to avoid conflict with imported Contrast icon
   const [invertColors, setInvertColors] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [websiteDarkMode, setWebsiteDarkMode] = useState(false); // This state is for the simulated website dark mode
 
-  useEffect(() => {
-    // Check initial dark mode state from system preference or localStorage
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const localDarkMode = localStorage.getItem('clarity-assist-dark-mode');
-    
-    if (localDarkMode !== null) {
-      setDarkMode(localDarkMode === 'true');
-      if (localDarkMode === 'true') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    } else {
-      setDarkMode(prefersDark);
-      if (prefersDark) {
-        document.documentElement.classList.add('dark');
-      }
-    }
-  }, []);
-
-  const handleDarkModeChange = (checked: boolean) => {
-    setDarkMode(checked);
-    if (checked) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('clarity-assist-dark-mode', 'true');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('clarity-assist-dark-mode', 'false');
-    }
+  const handleWebsiteDarkModeChange = (checked: boolean) => {
+    setWebsiteDarkMode(checked);
+    // This switch now only updates its own state for simulating website dark mode.
+    // It does not affect the extension's theme.
   };
 
   return (
@@ -56,24 +33,27 @@ export default function CustomizeTab() {
         max={200}
         step={5}
         unit="%"
+        icon={ALargeSmall}
       />
       <AdjustmentControl
         label="Letter Spacing"
         value={letterSpacing}
         setValue={setLetterSpacing}
-        min={-2} // Adjusted min for better usability
+        min={-2}
         max={10}
-        step={0.5} // Finer control
+        step={0.5}
         unit="px"
+        icon={StretchHorizontal}
       />
       <AdjustmentControl
         label="Word Spacing"
         value={wordSpacing}
         setValue={setWordSpacing}
-        min={-2} // Adjusted min
+        min={-2}
         max={20}
-        step={0.5} // Finer control
+        step={0.5}
         unit="px"
+        icon={WrapText}
       />
       <AdjustmentControl
         label="Line Spacing"
@@ -83,6 +63,7 @@ export default function CustomizeTab() {
         max={200}
         step={5}
         unit="%"
+        icon={Baseline}
       />
       <AdjustmentControl
         label="Color Saturation"
@@ -92,38 +73,40 @@ export default function CustomizeTab() {
         max={200}
         step={10}
         unit="%"
+        icon={Droplets}
       />
       <AdjustmentControl
         label="Contrast"
-        value={contrast}
-        setValue={setContrast}
+        value={contrastValue}
+        setValue={setContrastValue}
         min={50}
         max={200}
         step={10}
         unit="%"
+        icon={Contrast}
       />
 
       <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-background shadow-sm">
         <Label htmlFor="invert-colors-switch" className="font-medium text-foreground cursor-pointer">
-          Invert Colors
+          Invert Colors (Simulated)
         </Label>
         <Switch
           id="invert-colors-switch"
           checked={invertColors}
           onCheckedChange={setInvertColors}
-          aria-label="Toggle invert colors"
+          aria-label="Toggle invert colors for website simulation"
         />
       </div>
 
       <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-background shadow-sm">
-        <Label htmlFor="dark-mode-switch" className="font-medium text-foreground cursor-pointer">
-          Dark Mode
+        <Label htmlFor="website-dark-mode-switch" className="font-medium text-foreground cursor-pointer">
+          Website Dark Mode (Simulated)
         </Label>
         <Switch
-          id="dark-mode-switch"
-          checked={darkMode}
-          onCheckedChange={handleDarkModeChange}
-          aria-label="Toggle dark mode"
+          id="website-dark-mode-switch"
+          checked={websiteDarkMode}
+          onCheckedChange={handleWebsiteDarkModeChange}
+          aria-label="Toggle dark mode for website simulation"
         />
       </div>
     </div>
