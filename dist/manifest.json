@@ -1,9 +1,9 @@
+
 {
   "manifest_version": 3,
   "name": "ClarityAssist",
   "version": "0.1.0",
-  "description": "Enhances web accessibility with customizable profiles and adjustments.",
-  "permissions": [
+  "description": "Enhances web accessibility with customizable profiles and adjustments.",  "permissions": [
     "storage",
     "activeTab",
     "scripting",
@@ -25,15 +25,9 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "css": [
-        "content_styles.css"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content_styles.css"],
       "run_at": "document_idle"
     }
   ],
@@ -44,12 +38,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": [
-        "content_styles.css"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["content_styles.css"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

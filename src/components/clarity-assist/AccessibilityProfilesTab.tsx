@@ -1,80 +1,74 @@
-
 "use client";
 
 import React from "react";
-import type { LucideIcon } from "lucide-react";
-import { Keyboard, EyeOff, Palette, ZoomIn, ZapOff, Users } from "lucide-react";
 import ProfileToggleCard from "./ProfileToggleCard";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
-interface Profile {
+interface AccessibilityProfilesTabProps {
+  enabledProfiles: Record<string, boolean>;
+  setEnabledProfiles: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
+}
+
+interface AccessibilityProfile {
   id: string;
-  icon: LucideIcon;
   title: string;
   description: string;
 }
 
-const profilesData: Profile[] = [
+const accessibilityProfiles: AccessibilityProfile[] = [
   {
-    id: "motor-impaired",
-    icon: Keyboard,
-    title: "Motor Impaired",
-    description: "Keyboard navigation and voice control.",
+    id: "dyslexia",
+    title: "Dyslexia-Friendly Mode",
+    description: "Optimized text display and spacing for easier reading.",
   },
   {
-    id: "blind",
-    icon: EyeOff,
-    title: "Blind",
-    description: "Screen reader support and audio feedback.",
-  },
-  {
-    id: "color-blind",
-    icon: Palette,
-    title: "Color Blind",
-    description: "Adjusted contrast and color filters.",
+    id: "reading-guide",
+    title: "Reading Guide",
+    description: "Focused line helper for easier text tracking.",
   },
   {
     id: "low-vision",
-    icon: ZoomIn,
     title: "Low Vision",
-    description: "Larger text, high contrast mode.",
+    description: "Enhanced contrast and larger text for better visibility.",
   },
   {
-    id: "seizure-learning",
-    icon: ZapOff,
-    title: "Seizure & Learning",
-    description: "Remove flashing and reduces brightness.",
+    id: "color-blind",
+    title: "Color Blind",
+    description: "Optimized color contrast and patterns.",
   },
   {
     id: "elderly",
-    icon: Users,
     title: "Elderly",
-    description: "Larger text, high contrast mode, easier navigation.",
+    description: "Simplified interface with larger text and better contrast.",
+  },
+  {
+    id: "translate",
+    title: "Language Support",
+    description: "Translation and language assistance tools.",
   },
 ];
-
-interface AccessibilityProfilesTabProps {
-  enabledProfiles: Record<string, boolean>;
-  setEnabledProfiles: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-}
 
 export default function AccessibilityProfilesTab({
   enabledProfiles,
   setEnabledProfiles,
 }: AccessibilityProfilesTabProps) {
-  const handleToggleProfile = (profileId: string, checked: boolean) => {
-    setEnabledProfiles((prev) => ({ ...prev, [profileId]: checked }));
+  const { toggleProfile } = useAccessibility();
+
+  const handleProfileToggle = (profileId: string, enabled: boolean) => {
+    toggleProfile(profileId, enabled);
   };
 
   return (
-    <div className="space-y-4">
-      {profilesData.map((profile) => (
+    <div className="space-y-3 md:space-y-4">
+      {accessibilityProfiles.map((profile) => (
         <ProfileToggleCard
           key={profile.id}
-          icon={profile.icon}
           title={profile.title}
           description={profile.description}
-          enabled={!!enabledProfiles[profile.id]}
-          onToggle={(checked) => handleToggleProfile(profile.id, checked)}
+          enabled={enabledProfiles[profile.id] || false}
+          onToggle={(enabled) => handleProfileToggle(profile.id, enabled)}
         />
       ))}
     </div>

@@ -1,52 +1,87 @@
-
 // ClarityAssist Background Script
 // This script runs in the background of the browser.
 
 console.log("ClarityAssist background script loaded.");
 
-// Listen for the extension being installed or updated
+// Default settings
+const defaultSettings = {
+  fontSize: 100,
+  letterSpacing: 0,
+  wordSpacing: 0,
+  lineSpacing: 100,
+  colorSaturation: 100,
+  contrastValue: 100,
+  invertColors: false,
+  websiteDarkMode: false,
+};
+
+// Initialize extension when installed
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
-    console.log("ClarityAssist installed for the first time!");
-    // Initialize default settings in chrome.storage.sync here if needed
-    const initialCustomizeSettings = {
-      fontSize: 100,
-      letterSpacing: 0,
-      wordSpacing: 0,
-      lineSpacing: 100,
-      colorSaturation: 100,
-      contrastValue: 100,
-      invertColors: false,
-      websiteDarkMode: false,
-    };
-    const initialEnabledProfiles = {};
-
+    console.log("ClarityAssist installed.");
+    // Initialize with default settings
     chrome.storage.sync.set({
-      clarityAssistSettings: initialCustomizeSettings,
-      clarityAssistEnabledProfiles: initialEnabledProfiles
-    }, () => {
-      console.log("Default settings initialized.");
+      clarityAssistSettings: defaultSettings,
+      clarityAssistEnabledProfiles: {},
     });
-
-  } else if (details.reason === "update") {
-    const previousVersion = details.previousVersion;
-    console.log(`ClarityAssist updated from ${previousVersion} to ${chrome.runtime.getManifest().version}`);
-    // Handle migrations or updates to settings if necessary
   }
 });
 
-// Example: Listen for messages from other parts of the extension (popup, content scripts)
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Background script received message:", request, "from sender:", sender);
+// Listen for tab updates to reapply settings
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete" && tab.url?.startsWith("http")) {
+    chrome.storage.sync.get(
+      ["clarityAssistSettings", "clarityAssistEnabledProfiles"],
+      (data) => {
+        chrome.tabs.sendMessage(tabId, {
+          type: "SETTINGS_UPDATED",
+          settings: data.clarityAssistSettings || defaultSettings,
+          profiles: data.clarityAssistEnabledProfiles || {},
+        });
+      }
+    );
+  }
+});
 
+// Listen for messages from popup or content scripts
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "GET_SETTINGS") {
-    chrome.storage.sync.get(['clarityAssistSettings', 'clarityAssistEnabledProfiles'], (data) => {
-      sendResponse({ settings: data.clarityAssistSettings, profiles: data.clarityAssistEnabledProfiles });
-    });
-    return true; // Indicates that the response is sent asynchronously
+    chrome.storage.sync.get(
+      ["clarityAssistSettings", "clarityAssistEnabledProfiles"],
+      (data) => {
+        sendResponse({
+          settings: data.clarityAssistSettings || defaultSettings,
+          profiles: data.clarityAssistEnabledProfiles || {},
+        });
+      }
+    );
+    return true; // Will respond asynchronously
   }
 
-  // Add other message handlers as needed
+  if (request.type === "SAVE_SETTINGS") {
+    chrome.storage.sync.set(
+      {
+        clarityAssistSettings: request.settings,
+        clarityAssistEnabledProfiles: request.profiles,
+      },
+      () => {
+        // Notify all tabs of the settings change
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach((tab) => {
+            if (tab.id && tab.url?.startsWith("http")) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: "SETTINGS_UPDATED",
+                settings: request.settings,
+                profiles: request.profiles,
+              });
+            }
+          });
+        });
+        sendResponse({ status: "Settings saved successfully" });
+      }
+    );
+    return true; // Will respond asynchronously
+  }
 });
 
 // Example: Context menu item (right-click menu)
