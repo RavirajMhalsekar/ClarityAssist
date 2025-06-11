@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 interface AccessibilityContextType {
   enabledProfiles: Record<string, boolean>;
@@ -27,6 +33,38 @@ export function AccessibilityProvider({
   const enabledProfiles = externalEnabledProfiles ?? internalEnabledProfiles;
   const setEnabledProfiles =
     externalSetEnabledProfiles ?? setInternalEnabledProfiles;
+
+  // Monitor changes to color blind profile
+  useEffect(() => {
+    if (enabledProfiles["color-blind"]) {
+      // When color blind profile is enabled, ensure colorDeficiencyType is set
+      chrome.storage.sync.get(["clarityAssistSettings"], (result) => {
+        const settings = result.clarityAssistSettings || {};
+        if (!settings.colorDeficiencyType) {
+          // Default to protanopia if no type is set
+          chrome.storage.sync.set({
+            clarityAssistSettings: {
+              ...settings,
+              colorDeficiencyType: "protanopia",
+            },
+          });
+        }
+      });
+    } else {
+      // When color blind profile is disabled, clear colorDeficiencyType
+      chrome.storage.sync.get(["clarityAssistSettings"], (result) => {
+        const settings = result.clarityAssistSettings || {};
+        if (settings.colorDeficiencyType) {
+          chrome.storage.sync.set({
+            clarityAssistSettings: {
+              ...settings,
+              colorDeficiencyType: null,
+            },
+          });
+        }
+      });
+    }
+  }, [enabledProfiles["color-blind"]]);
 
   const toggleProfile = (profileId: string, enabled: boolean) => {
     const newProfiles = {

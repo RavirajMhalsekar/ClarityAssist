@@ -15,6 +15,7 @@ const initialCustomizeSettings: CustomizeSettings = {
   contrastValue: 100,
   invertColors: false,
   websiteDarkMode: false,
+  colorDeficiencyType: null,
 };
 
 function PopupContent() {

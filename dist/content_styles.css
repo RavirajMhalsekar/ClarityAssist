@@ -225,7 +225,7 @@ body[data-clarity-profile="magnify"] h3:hover {
   background: rgba(255, 255, 255, 0.95);
   z-index: 1000;
   position: relative;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   padding: 4px;
 }

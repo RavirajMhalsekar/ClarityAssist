@@ -13,6 +13,7 @@ const defaultSettings = {
   contrastValue: 100,
   invertColors: false,
   websiteDarkMode: false,
+  colorDeficiencyType: null,
 };
 
 // Initialize extension when installed

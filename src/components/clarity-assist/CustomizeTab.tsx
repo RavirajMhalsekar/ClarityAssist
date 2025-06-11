@@ -22,6 +22,7 @@ export interface CustomizeSettings {
   contrastValue: number;
   invertColors: boolean;
   websiteDarkMode: boolean;
+  colorDeficiencyType: "protanopia" | "deuteranopia" | "tritanopia" | null;
 }
 
 interface CustomizeTabProps {
@@ -97,36 +98,86 @@ export default function CustomizeTab({
           IconComponent={Contrast}
           unit="%"
         />
-      </div>
 
-      <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-background shadow-sm">
-        <Label
-          htmlFor="invert-colors-switch"
-          className="font-medium text-foreground cursor-pointer"
-        >
-          Invert Colors (Simulated)
-        </Label>
-        <Switch
-          id="invert-colors-switch"
-          checked={settings.invertColors}
-          onCheckedChange={(checked) => updateSetting("invertColors", checked)}
-        />
-      </div>
+        <div className="p-3 border border-border rounded-lg bg-background shadow-sm space-y-3">
+          <Label className="font-medium text-foreground">
+            Color Vision Type
+          </Label>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => updateSetting("colorDeficiencyType", "protanopia")}
+              className={`p-2 text-xs rounded-md transition-colors ${
+                settings.colorDeficiencyType === "protanopia"
+                  ? "bg-violet-600 text-white dark:bg-violet-500"
+                  : "bg-secondary hover:bg-violet-600 hover:text-white"
+              }`}
+            >
+              Protanopia
+            </button>
+            <button
+              onClick={() =>
+                updateSetting("colorDeficiencyType", "deuteranopia")
+              }
+              className={`p-2 text-xs rounded-md transition-colors ${
+                settings.colorDeficiencyType === "deuteranopia"
+                  ? "bg-violet-600 text-white dark:bg-violet-500"
+                  : "bg-secondary hover:bg-violet-600 hover:text-white"
+              }`}
+            >
+              Deuteranopia
+            </button>
+            <button
+              onClick={() => updateSetting("colorDeficiencyType", "tritanopia")}
+              className={`p-2 text-xs rounded-md transition-colors ${
+                settings.colorDeficiencyType === "tritanopia"
+                  ? "bg-violet-600 text-white dark:bg-violet-500"
+                  : "bg-secondary hover:bg-violet-600 hover:text-white"
+              }`}
+            >
+              Tritanopia
+            </button>
+          </div>
+          {settings.colorDeficiencyType && (
+            <button
+              onClick={() => updateSetting("colorDeficiencyType", null)}
+              className="text-xs text-muted-foreground hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+            >
+              Reset to Normal Vision
+            </button>
+          )}
+        </div>
 
-      <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-background shadow-sm">
-        <Label
-          htmlFor="dark-mode-switch"
-          className="font-medium text-foreground cursor-pointer"
-        >
-          Dark Mode
-        </Label>
-        <Switch
-          id="dark-mode-switch"
-          checked={settings.websiteDarkMode}
-          onCheckedChange={(checked) =>
-            updateSetting("websiteDarkMode", checked)
-          }
-        />
+        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-background shadow-sm">
+          <Label
+            htmlFor="invert-colors-switch"
+            className="font-medium text-foreground cursor-pointer"
+          >
+            Invert Colors (Simulated)
+          </Label>
+          <Switch
+            id="invert-colors-switch"
+            checked={settings.invertColors}
+            onCheckedChange={(checked) =>
+              updateSetting("invertColors", checked)
+            }
+          />
+        </div>
+
+        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-background shadow-sm">
+          <Label
+            htmlFor="dark-mode-switch"
+            className="font-medium text-foreground cursor-pointer"
+          >
+            Dark Mode
+          </Label>
+          <Switch
+            id="dark-mode-switch"
+            checked={settings.websiteDarkMode}
+            onCheckedChange={(checked) =>
+              updateSetting("websiteDarkMode", checked)
+            }
+          />
+        </div>
       </div>
     </div>
   );

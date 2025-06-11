@@ -27,45 +27,159 @@ function applyAccessibilitySettings(settings, profiles) {
   let cssVars = "";
   let filterStyle = "";
 
+  // Apply zoom and enhanced contrast for Elderly profile
+  if (profiles["elderly"]) {
+    document.body.style.zoom = "150%";
+    filterStyle += "contrast(120%) brightness(105%) ";
+  }
+  // Apply zoom for Low Vision profile
+  else if (profiles["low-vision"]) {
+    document.body.style.zoom = "175%";
+  } else {
+    document.body.style.zoom = "100%";
+  }
+
   // Handle color and contrast settings
   if (settings.invertColors) {
     filterStyle += "invert(1) ";
-  } else if (settings.websiteDarkMode) {
+  }
+
+  // Apply color blind adjustments
+  if (profiles["color-blind"]) {
+    switch (settings.colorDeficiencyType) {
+      case "protanopia":
+        // Enhance reds and greens for red-blind
+        filterStyle += "sepia(20%) hue-rotate(330deg) ";
+        cssVars += `
+          html {
+            --color-blind-red: #FF8C8C;
+            --color-blind-green: #B4D98C;
+          }
+          html [style*="color: red"],
+          html [style*="background: red"],
+          html [style*="background-color: red"] {
+            color: var(--color-blind-red) !important;
+            background-color: var(--color-blind-red) !important;
+          }
+          html [style*="color: green"],
+          html [style*="background: green"],
+          html [style*="background-color: green"] {
+            color: var(--color-blind-green) !important;
+            background-color: var(--color-blind-green) !important;
+          }
+        `;
+        break;
+      case "deuteranopia":
+        // Enhance greens and reds for green-blind
+        filterStyle += "sepia(20%) hue-rotate(30deg) ";
+        cssVars += `
+          html {
+            --color-blind-green: #D4E576;
+            --color-blind-red: #FF9E9E;
+          }
+          html [style*="color: green"],
+          html [style*="background: green"],
+          html [style*="background-color: green"] {
+            color: var(--color-blind-green) !important;
+            background-color: var(--color-blind-green) !important;
+          }
+          html [style*="color: red"],
+          html [style*="background: red"],
+          html [style*="background-color: red"] {
+            color: var(--color-blind-red) !important;
+            background-color: var(--color-blind-red) !important;
+          }
+        `;
+        break;
+      case "tritanopia":
+        // Enhance blues and yellows for blue-blind
+        filterStyle += "sepia(20%) hue-rotate(200deg) ";
+        cssVars += `
+          html {
+            --color-blind-blue: #99CCFF;
+            --color-blind-yellow: #FFEB99;
+          }
+          html [style*="color: blue"],
+          html [style*="background: blue"],
+          html [style*="background-color: blue"] {
+            color: var(--color-blind-blue) !important;
+            background-color: var(--color-blind-blue) !important;
+          }
+          html [style*="color: yellow"],
+          html [style*="background: yellow"],
+          html [style*="background-color: yellow"] {
+            color: var(--color-blind-yellow) !important;
+            background-color: var(--color-blind-yellow) !important;
+          }
+        `;
+        break;
+    }
+
+    // Add general color blind enhancements
     cssVars += `
       html {
-        background-color: #1a1a1a !important;
+        /* Enhanced color contrast for common UI elements */
+        --cb-link-color: #0077CC;
+        --cb-button-bg: #2B5BA1;
+        --cb-button-text: #FFFFFF;
+        --cb-error: #CC4444;
+        --cb-success: #44AA44;
+        --cb-warning: #FF9900;
       }
-      html body,
-      html div,
-      html section,
-      html article,
-      html aside,
-      html nav,
-      html header,
-      html footer,
-      html main {
-        background-color: #1a1a1a !important;
-        color: #ffffff !important;
-      }
+
+      /* Apply enhanced colors to common elements */
       html a {
-        color: #66b3ff !important;
+        color: var(--cb-link-color) !important;
       }
-      html input,
-      html textarea,
-      html select {
-        background-color: #333333 !important;
-        color: #ffffff !important;
-        border-color: #666666 !important;
+
+      html button:not([class*="clarity-"]),
+      html input[type="submit"],
+      html input[type="button"] {
+        background-color: var(--cb-button-bg) !important;
+        color: var(--cb-button-text) !important;
+        border: 2px solid var(--cb-button-text) !important;
       }
-      html button {
-        background-color: #333333 !important;
-        color: #ffffff !important;
-        border: 1px solid #666666 !important;
+
+      /* Enhanced error/success/warning colors */
+      html [class*="error"],
+      html [class*="danger"] {
+        color: var(--cb-error) !important;
+      }
+
+      html [class*="success"] {
+        color: var(--cb-success) !important;
+      }
+
+      html [class*="warning"] {
+        color: var(--cb-warning) !important;
+      }
+
+      /* Improve text contrast */
+      html {
+        --text-main: #000000;
+        --text-secondary: #333333;
+        --background-main: #FFFFFF;
+        --background-secondary: #F5F5F5;
+      }
+
+      html body,
+      html p,
+      html h1,
+      html h2,
+      html h3,
+      html h4,
+      html h5,
+      html h6 {
+        color: var(--text-main) !important;
+      }
+
+      html body {
+        background-color: var(--background-main) !important;
       }
     `;
   }
 
-  // Apply color saturation and contrast settings if defined
+  // Apply color saturation and contrast settings
   if (settings.colorSaturation !== undefined) {
     filterStyle += `saturate(${settings.colorSaturation}%) `;
   }
@@ -78,168 +192,6 @@ function applyAccessibilitySettings(settings, profiles) {
     /* Root level filters */
     html {
       ${filterStyle ? `filter: ${filterStyle.trim()} !important;` : ""}
-    }
-
-    /* Text adjustments - apply to all text elements */
-    html body,
-    html button,
-    html input,
-    html select,
-    html textarea,
-    html a,
-    html p,
-    html span,
-    html div,
-    html h1,
-    html h2,
-    html h3,
-    html h4,
-    html h5,
-    html h6,
-    html li,
-    html td,
-    html th,
-    html label {
-      font-size: ${settings.fontSize}% !important;
-      letter-spacing: ${settings.letterSpacing}px !important;
-      word-spacing: ${settings.wordSpacing}px !important;
-      line-height: ${settings.lineSpacing / 100} !important;
-    }
-
-    /* Profile-specific styles */
-    ${
-      profiles["dyslexia"]
-        ? `
-      @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&display=swap');
-      html * {
-        font-family: 'Lexend', sans-serif !important;
-        line-height: 1.5 !important;
-        letter-spacing: 0.5px !important;
-        word-spacing: 3px !important;
-      }
-      html p {
-        max-width: 80ch !important;
-      }
-    `
-        : ""
-    }
-
-    ${
-      profiles["reading-guide"]
-        ? `
-      .clarity-reading-guide {
-        position: fixed;
-        left: 0;
-        right: 0;
-        height: 30px;
-        background: rgba(255, 255, 0, 0.1);
-        pointer-events: none;
-        z-index: 999999;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      }
-    `
-        : ""
-    }
-
-    ${
-      profiles["readable-font"]
-        ? `
-      html * {
-        font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif !important;
-        line-height: 1.6 !important;
-      }
-      html p, html li {
-        font-size: 18px !important;
-        max-width: 70ch !important;
-      }
-    `
-        : ""
-    }
-
-    ${
-      profiles["keyboard-nav"]
-        ? `
-      html *:focus {
-        outline: 3px solid #0066cc !important;
-        outline-offset: 2px !important;
-      }
-      html button,
-      html a,
-      html input,
-      html select,
-      html [role="button"] {
-        cursor: pointer !important;
-      }
-      html [data-focus-visible] {
-        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.5) !important;
-      }
-    `
-        : ""
-    }
-
-    ${
-      profiles["translate"]
-        ? `
-      .clarity-translate-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #0066cc;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 16px;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 999999;
-      }
-    `
-        : ""
-    }
-
-    ${
-      profiles["color-blind"]
-        ? `
-      html {
-        filter: ${filterStyle} 
-          ${
-            settings.colorDeficiencyType === "protanopia"
-              ? "url(#protanopia-filter)"
-              : settings.colorDeficiencyType === "deuteranopia"
-              ? "url(#deuteranopia-filter)"
-              : settings.colorDeficiencyType === "tritanopia"
-              ? "url(#tritanopia-filter)"
-              : ""
-          } !important;
-      }
-      html [role="img"],
-      html [role="graphics-symbol"] {
-        border: 1px solid currentColor !important;
-      }
-      html [data-color-primitive] {
-        border: 1px solid currentColor !important;
-        position: relative !important;
-      }
-      html [data-color-primitive]::after {
-        content: attr(data-color-primitive);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #000;
-        color: #fff;
-        padding: 2px 4px;
-        border-radius: 2px;
-        font-size: 12px;
-        white-space: nowrap;
-        display: none;
-      }
-      html [data-color-primitive]:hover::after {
-        display: block;
-      }
-    `
-        : ""
     }
 
     /* Dark mode overrides */

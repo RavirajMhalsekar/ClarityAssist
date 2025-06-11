@@ -23,6 +23,7 @@ const initialCustomizeSettings: CustomizeSettings = {
   contrastValue: 100, // percentage
   invertColors: false,
   websiteDarkMode: false,
+  colorDeficiencyType: null,
 };
 
 const initialEnabledProfiles: Record<string, boolean> = {};

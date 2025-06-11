@@ -39,6 +39,7 @@ export function ClarityAssistUI({
       contrastValue: 100,
       invertColors: false,
       websiteDarkMode: false,
+      colorDeficiencyType: null,
     });
 
   // Use either external or internal state
@@ -109,6 +110,7 @@ export function ClarityAssistUI({
       contrastValue: 100,
       invertColors: false,
       websiteDarkMode: false,
+      colorDeficiencyType: null,
     });
     setEnabledProfiles({});
     toast({
@@ -157,16 +159,16 @@ export function ClarityAssistUI({
         </div>
 
         <Tabs defaultValue="profiles" className="flex-1">
-          <TabsList className="grid w-full grid-cols-2 bg-secondary mb-3 p-0.5 h-8">
+          <TabsList className="grid w-full grid-cols-2 bg-secondary dark:bg-gray-800 mb-3 p-0.5 h-8 rounded-lg border-0">
             <TabsTrigger
               value="profiles"
-              className="text-xs font-medium data-[state=active]:bg-violet-600 data-[state=active]:text-white dark:data-[state=active]:bg-violet-500 dark:data-[state=active]:text-white transition-colors"
+              className="text-xs font-medium bg-transparent data-[state=active]:bg-violet-600 data-[state=active]:text-white dark:bg-gray-800 dark:data-[state=active]:bg-violet-500 dark:data-[state=active]:shadow-md dark:data-[state=active]:text-white dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-white transition-colors rounded"
             >
               Accessibility Profiles
             </TabsTrigger>
             <TabsTrigger
               value="customize"
-              className="text-xs font-medium data-[state=active]:bg-violet-600 data-[state=active]:text-white dark:data-[state=active]:bg-violet-500 dark:data-[state=active]:text-white transition-colors"
+              className="text-xs font-medium bg-transparent data-[state=active]:bg-violet-600 data-[state=active]:text-white dark:bg-gray-800 dark:data-[state=active]:bg-violet-500 dark:data-[state=active]:shadow-md dark:data-[state=active]:text-white dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-white transition-colors rounded"
             >
               Customize
             </TabsTrigger>
